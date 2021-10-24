@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta  name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito App - Vue.js</title>
+    <!-- Bootstrap 4 --->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+
+</head>
+<body>
+    
+    <div id="app">
+        <div class="container">
+              <div class="row text-center">
+
+                    <article class="col-sm-4 mb-3 mt-2" v-for="product in products">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title"> {{product.title}}  {{product.image}}</h5>
+                                <p class="lead">$ {{product.price}}</p>
+                                <button v-on:click="addToCarrito(product)" class="btn btn-outline-primary">Agregar</button>
+                            </div>
+                        </div>
+
+                    </article>
+
+                </div>
+    
+                <section class="container mt-3">
+                    <ul class="list-group">
+                        <div v-if="car.length > 0">
+                            <div v-for="c in car">
+                                <li class="list-group-item bg-secondary text-white">
+                                    <span class="badge bg-primary rounded-pill align-middle">{{c.qty}}</span>
+                                    <span class="lead align-middle">{{c.title}}</span>
+
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <p class="lead mb-0">Total: $<span>{{c.price * c.qty}}</span></p>
+                                    </div>
+                                    <div>
+                                        <button v-on:click="removeProduct(c)" class="btn btn-sm btn-danger">Quitar</button>
+                                        <button v-on:click="addToCarrito(c)" class="btn btn-sm btn-success">Agregar</button>
+                                    </div>
+                                </li>
+                            </div>
+
+
+                            <div class="card">
+                                <div class="card-body d-flex justify-content-between align-items-center">
+                                    <p class="lead mb-0">Total $<span>{{total}}</span></p>
+                                    <button class="btn btn-outline-info">Finalizar compra</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </ul>
+                </section>
+
+            </div>
+
+    </div>
+
+
+    <!-- Incluir Vue.js v.2 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+
+   
+    <script>
+
+      const app = new Vue({
+            el:'#app',
+            data:{
+            titleApp: 'Carrito App',
+            products:[
+                { 
+                    title: "Frutilla",
+                    image: "🍓",
+                    id: 1,
+                    price: 300,
+                },
+                {
+                    title: "Banana",
+                    image: "🍌",
+                    id: 2,
+                    price: 100,
+                },
+                {
+                    title: "Manzana",
+                    image: "🍏",
+                    id: 3,
+                    price: 200,
+                }
+            ],
+            car: [],
+
+
+            },
+            computed:{
+                total(){
+                    return  this.car.reduce( (acc, current) => acc + current.qty * current.price, 0)
+                    
+                }
+            },
+            methods:{
+                addToCarrito(product){
+                    const indice = this.car.findIndex((pr) => pr.id === product.id);
+                    if(indice===-1){
+                        product.qty = 1
+                        this.car.push(product)
+                    }else{
+                        //Vue no detectara cambios en el array si se actualiza por indice. Ese tipo de operacion es no traqueable.. Ver link https://stackoverflow.com/a/59289650/16988223
+                        //this.car[indice].qty++
+                        //Usar $set:
+                        const productUpdated = product 
+                        productUpdated.qty++
+                        this.$set(this.car, indice, productUpdated)
+                    }
+                   
+                },
+
+                removeProduct(product){
+                        //Actualizar cantidad del producto del carrito
+                        this.car = this.car.filter((item) => {
+                            if (item.id === product.id) {
+                                if (item.qty > 0) {
+                                    item.qty--;
+                                    if (item.qty === 0) return;
+                                    return item;
+                                }
+                            } else {
+                                return item;
+                            }
+                      
+                    })
+                }         
+            }
+      });
+
+    </script>
+
+
+</body>
+</html>
